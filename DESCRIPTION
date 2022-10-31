@@ -1,4 +1,4 @@
-Package: gtfsv2
+Package: simplegtfs
 Type: Package
 Title: Manipulation of GTFS data
 Version: 0.1.0
