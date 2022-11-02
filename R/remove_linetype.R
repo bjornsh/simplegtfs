@@ -22,10 +22,11 @@ remove_linetype <- function(gtfs_obj, remove_linetype){
     left_join(., gtfs_obj$trips, by = "route_id") %>%
     filter(route_desc %notin% remove_linjetyp) %>%
     select(trip_id) %>%
-    distinct()
+    distinct() %>%
+    pull()
 
   # remove trips from GTFS
-  final <- tidytransit::filter_feed_by_trips(gtfs_obj, unique(route_trip_include$trip_id))
+  final <- tidytransit::filter_feed_by_trips(gtfs_obj, route_trip_include)
 
   return(final)
 }
