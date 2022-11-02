@@ -23,9 +23,10 @@ stop_id_name <- function(gtfs_obj){
 }
 
 
-#' Number of departures
+#' Number of departures per stop, hour and line
 #'
-#' Create dataframe with the number of departures per stop, hour and line for todays date
+#' Create dataframe with the number of departures per stop, hour and line. Ensure to filter GTFS feed by date (tidytransit::filter_feed_by_date())
+#' prior to running the function to get number of departures per day
 #' @param gtfs_obj GTFS object loaded with tidytransit::read_gtfs()
 #' @return dep Table with number of departures per stop, hour and line for single date
 #' @import dplyr
@@ -52,6 +53,42 @@ departure_stop_line_hr = function(gtfs_obj){
 
   return(dep)
 }
+
+
+#' Number of departures per stop
+#'
+#' Create dataframe with the number of departures per stop. Ensure to filter GTFS feed by date (tidytransit::filter_feed_by_date())
+#' prior to running the function to get number of departures per day
+#' @param gtfs_obj GTFS object loaded with tidytransit::read_gtfs()
+#' @return dep Table with number of departures per stop ID
+#' @import dplyr
+#'
+#' @examples \donttest{
+#' library(dplyr)
+#' gtfs_file <- list.files("gtfs_data")
+#' dat = tidytransit::read_gtfs(paste0("gtfs_data/", gtfs_file[1]))
+#' departure_stop(dat)
+#' }
+#'
+#' @export
+
+departure_stop = function(gtfs_obj){
+  dep <-   gtfs_obj$routes %>%
+    left_join(., gtfs_obj$trips, by = "route_id") %>%
+    left_join(., gtfs_obj$stop_times, by = "trip_id") %>%
+    # create hpl_id
+    mutate(hpl_id = as.integer(substr(stop_id, 8, 13))) %>%
+    select(hpl_id, trip_id) %>%
+    # departures per hpl
+    group_by(hpl_id) %>%
+    summarise(antal_departure = n())
+
+  return(dep)
+}
+
+
+
+
 
 
 #' Number of lines per stop
